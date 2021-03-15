@@ -10,7 +10,7 @@ ________________________
 
 _______________________
 
-# [Welcome to <ins>"D3Times"</ins> web site ](https://ykrasnikov.github.io/D3-challenge/)
+# [Welcome to <ins>"D3Times"</ins> web site ](https://ykrasnikov.github.io/D3-Challenge/)
 
 Code used for project:
 ### d3.v6
