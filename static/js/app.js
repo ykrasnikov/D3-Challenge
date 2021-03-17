@@ -8,7 +8,7 @@ let margin = {
   top: 50,
   right: 50,
   bottom: 100,
-  left: 85
+  left: 90
 };
 //  chart effective size
 let width = svgWidth - margin.left - margin.right,
