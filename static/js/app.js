@@ -8,7 +8,7 @@ let margin = {
   top: 50,
   right: 50,
   bottom: 100,
-  left: 80
+  left: 85
 };
 //  chart effective size
 let width = svgWidth - margin.left - margin.right,
@@ -106,7 +106,7 @@ function renderYcircles(circlesGroup,textCircleGroup, yScale, yAxisChoice) {
     return circlesGroup,textCircleGroup;
   };
 // ******************************* updateToolTips
-function updateToolTip(xAxisChoice,yAxisChoice,mouseOverGroup) {
+function updateToolTip(xAxisChoice,xLabel,yAxisChoice,yLabel,mouseOverGroup) {
 
   let toolTip = d3.select('body').append('div').classed('d3-tip', true);
 
@@ -114,7 +114,7 @@ function updateToolTip(xAxisChoice,yAxisChoice,mouseOverGroup) {
     //toolTip.show(data);
     toolTip.transition().duration(200).style("opacity", .9);
     toolTip.style('display', 'block')
-          .html(`<strong>${d.state}</strong><br>${xAxisChoice} : ${d[xAxisChoice]},<br>${yAxisChoice} : ${d[yAxisChoice]}`)
+          .html(`<strong>${d.state}</strong><br>${xLabel} : ${d[xAxisChoice]},<br>${yLabel} : ${d[yAxisChoice]}`)
           .style('left',( event.pageX)+'px')
           .style('top', (event.pageY)+'px');
   })
@@ -131,20 +131,24 @@ function updateToolTip(xAxisChoice,yAxisChoice,mouseOverGroup) {
 // read csv, bind data, append chart elements
 // **********************************************
 // data from csv
-let xyData={'axis':['poverty','age','income','healthcare','obesity','smokes'],
-            'legend':['In Poverty (%)','Age (Median, Years)','Household Inclome (Median, $)',
-              'Lacks Healthcare (%)','Obese(%)','Smokes(%)']}
+let xData={'poverty':'In Poverty (%)',
+          'age':'Age (Median, Years)',
+          'income':'Household Inclome (Median, $)'},
+    yData={'healthcare':'Lacks Healthcare (%)',
+           'obesity':'Obese(%)',
+           'smokes':'Smokes(%)'},
+    xyData={...xData,...yData};
 let csvLocation='./static/data/data.csv'
 d3.csv(csvLocation).then((data,err)=>{
   if (err) throw `ERROR ${err}`;
 
   // set first choice for x and y data - poverty and healthcare
-  let xAxisChoice=xyData.axis[0], 
-      yAxisChoice=xyData.axis[3];
+  let xAxisChoice='poverty', 
+      yAxisChoice='healthcare';
 
   // converting to number format
   data.forEach(record=>{
-    xyData.axis.forEach(entry=>{
+    Object.keys(xyData).forEach(entry=>{
       record[entry]=+record[entry]
     });
   });
@@ -190,32 +194,32 @@ d3.csv(csvLocation).then((data,err)=>{
   // Create group for all x-axis labels
   let xLabelsGroup = chartGroup.append("g")
     .attr("transform", `translate(${width / 2}, ${height + 20})`);
-  xyData.axis.slice(0,3).forEach((element,i) => {
+  Object.keys(xData).forEach((element,i) => {
     let switchStyle=(element==xAxisChoice ? "active":"inactive");
     xLabelsGroup.append('text')
       .attr("x", 0)
       .attr("y", 20+i*20)
       .attr("value", element) // value to grab for event listener
       .classed(switchStyle, true)
-      .text(xyData.legend[i]);
+      .text(xData[element]);
   });
   // Create group for all y-axis labels
   let yLabelsGroup = chartGroup.append("g")
     .attr("transform", `translate(-90, ${height/2 + 20})`);
-  xyData.axis.slice(3,7).forEach((element,i) => {
+    Object.keys(yData).forEach((element,i) => {
     let switchStyle=(element==yAxisChoice ? "active":"inactive");
     yLabelsGroup.append('text')
       .attr("transform", "rotate(-90)")
-      .attr("y", -(i-3)*20)
+      .attr("y",(3-i)*20)
       .attr("x",0)
       .attr("value", element) // value to grab for event listener
       .classed(switchStyle, true)
-      .text(xyData.legend[i+3]);
+      .text(yData[element]);
   });
   // Select all circles and circle text for easy mouse hovering
   let toolTipGroup=d3.selectAll("#circleText")
   // insert tooltips 
-  updateToolTip(xAxisChoice,yAxisChoice, toolTipGroup);
+  updateToolTip(xAxisChoice,xData[xAxisChoice],yAxisChoice,yData[yAxisChoice],toolTipGroup);
   // x axis labels event listener
   xLabelsGroup.selectAll("text")
     .on("click", function() {
@@ -232,10 +236,10 @@ d3.csv(csvLocation).then((data,err)=>{
         circlesGroup,textCircleGroup = renderXcircles(circlesGroup,textCircleGroup, xScale, xAxisChoice);
         // changes classes to change bold text
         xLabelsGroup.selectAll('text')
-          .classed('active',(d,i)=>xyData.axis[i]==xAxisChoice)
-          .classed('inactive',(d,i)=>xyData.axis[i]!==xAxisChoice)  
+          .classed('active',(d,i)=>Object.keys(xData)[i]==xAxisChoice)
+          .classed('inactive',(d,i)=>Object.keys(xData)[i]!==xAxisChoice)  
         //  update tooltips with new axis info
-        updateToolTip(xAxisChoice,yAxisChoice,toolTipGroup)
+        updateToolTip(xAxisChoice,xData[xAxisChoice],yAxisChoice,yData[yAxisChoice],toolTipGroup)
       }
     });
   // y axis labels event listener
@@ -257,10 +261,10 @@ d3.csv(csvLocation).then((data,err)=>{
 
     // changes classes to change bold text
     yLabelsGroup.selectAll('text')
-   .classed('active',(d,i)=>xyData.axis[i+3]==yAxisChoice)
-   .classed('inactive',(d,i)=>xyData.axis[i+3]!==yAxisChoice)
+   .classed('active',(d,i)=>Object.keys(yData)[i]==yAxisChoice)
+   .classed('inactive',(d,i)=>Object.keys(yData)[i]!==yAxisChoice)
   //  update tooltips with new axis info
-     updateToolTip(xAxisChoice,yAxisChoice,toolTipGroup)
+     updateToolTip(xAxisChoice,xData[xAxisChoice],yAxisChoice,yData[yAxisChoice],toolTipGroup)
   }
 });
 
