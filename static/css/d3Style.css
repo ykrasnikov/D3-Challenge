@@ -41,6 +41,7 @@
 }
 
 .d3-tip {
+  position: absolute;
   padding: 6px;
   font-size: 12px;
   line-height: 1;
@@ -50,6 +51,8 @@
   text-transform: capitalize;
   background: rgba(0, 0, 0, 0.8);
   border-radius: 4px;
+  width: 135px;
+  height: 60px;
 }
 
 /* Mobile Rules */
